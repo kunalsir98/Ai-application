@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Text Summarization - AI Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-6 fw-bold text-primary">Text Summarization</h1>
+                <p class="lead text-muted">Transform long texts into concise, meaningful summaries</p>
+            </div>
+
+            <div class="row">
+                <!-- Input Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>Input Text
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="summarization-form">
+                                <div class="mb-3">
+                                    <label for="text-input" class="form-label">Text to Summarize</label>
+                                    <textarea class="form-control" id="text-input" name="text" rows="12" 
+                                              placeholder="Paste your text here..."></textarea>
+                                    <div class="form-text">
+                                        <span id="char-count">0</span> characters
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="summary-type" class="form-label">Summary Type</label>
+                                    <select class="form-select" id="summary-type" name="summary_type">
+                                        <option value="standard">Standard Summary</option>
+                                        <option value="brief">Brief (2-3 sentences)</option>
+                                        <option value="detailed">Detailed with Analysis</option>
+                                        <option value="bullet">Bullet Points</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-compress-alt me-2"></i>Generate Summary
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Sample Texts -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>Sample Texts
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-secondary btn-sm sample-text" 
+                                        data-text="Artificial Intelligence (AI) is transforming the way we live and work. From healthcare to finance, education to entertainment, AI technologies are revolutionizing industries and creating new possibilities. Machine learning algorithms can now diagnose diseases, predict market trends, personalize learning experiences, and create art. However, with these advances come challenges such as job displacement, privacy concerns, and ethical considerations. As we continue to develop AI systems, it's crucial to ensure they are designed responsibly, with transparency, fairness, and human welfare at the forefront. The future of AI depends on our ability to balance innovation with responsibility, ensuring that these powerful technologies benefit all of humanity while minimizing potential risks.">
+                                    AI and Society
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm sample-text" 
+                                        data-text="Climate change represents one of the most pressing challenges of our time. Rising global temperatures, melting ice caps, and extreme weather events are clear indicators of our planet's changing climate. The primary cause is the increased concentration of greenhouse gases in the atmosphere, largely due to human activities such as burning fossil fuels, deforestation, and industrial processes. The impacts are far-reaching: rising sea levels threaten coastal communities, changing precipitation patterns affect agriculture, and biodiversity loss accelerates as ecosystems struggle to adapt. Addressing climate change requires immediate and sustained action at all levels - from individual lifestyle changes to international policy coordination. Renewable energy adoption, energy efficiency improvements, sustainable transportation, and carbon capture technologies are among the solutions being pursued. The window for limiting global warming to manageable levels is rapidly closing, making urgent action more critical than ever.">
+                                    Climate Change
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm sample-text" 
+                                        data-text="The evolution of remote work has fundamentally changed the modern workplace. What began as a necessity during the global pandemic has evolved into a permanent fixture of the professional landscape. Companies worldwide have discovered that remote work can increase productivity, reduce overhead costs, and provide employees with better work-life balance. However, it also presents challenges such as maintaining team cohesion, ensuring effective communication, and managing employee engagement. Hybrid work models are emerging as a popular solution, combining the benefits of both remote and in-office work. Technology plays a crucial role in enabling this transition, with video conferencing, collaboration tools, and cloud computing becoming essential infrastructure. As organizations adapt to this new paradigm, they must also address issues like cybersecurity, employee mental health, and equitable access to opportunities for remote workers.">
+                                    Remote Work Evolution
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Output Section -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>Summary Result
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="summary-output">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-compress-alt fa-3x mb-3"></i>
+                                    <h5>Summary will appear here</h5>
+                                    <p>Enter text and click "Generate Summary" to get started</p>
+                                </div>
+                            </div>
+                            
+                            <div id="summary-actions" class="mt-3" style="display: none;">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" id="copy-summary">
+                                        <i class="fas fa-copy me-1"></i>Copy
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="download-summary">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Stats -->
+                    <div id="summary-stats" class="card mt-3" style="display: none;">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Summary Statistics
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h6 id="original-words">0</h6>
+                                        <small class="text-muted">Original Words</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h6 id="summary-words">0</h6>
+                                        <small class="text-muted">Summary Words</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h6 id="compression-ratio">0%</h6>
+                                        <small class="text-muted">Compression</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('summarization-form');
+    const textInput = document.getElementById('text-input');
+    const charCount = document.getElementById('char-count');
+    const summaryOutput = document.getElementById('summary-output');
+    const summaryActions = document.getElementById('summary-actions');
+    const summaryStats = document.getElementById('summary-stats');
+    const sampleTexts = document.querySelectorAll('.sample-text');
+
+    // Character count
+    textInput.addEventListener('input', function() {
+        charCount.textContent = this.value.length;
+    });
+
+    // Sample text buttons
+    sampleTexts.forEach(button => {
+        button.addEventListener('click', function() {
+            textInput.value = this.dataset.text;
+            charCount.textContent = textInput.value.length;
+        });
+    });
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const text = textInput.value.trim();
+        if (!text) {
+            alert('Please enter text to summarize.');
+            return;
+        }
+        
+        // Show loading state
+        summaryOutput.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mt-3">Generating summary...</h5>
+                <p class="text-muted">This may take a few moments</p>
+            </div>
+        `;
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/summarization', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.summary) {
+                displaySummary(result.summary, text);
+            } else {
+                summaryOutput.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${result.error || 'Failed to generate summary'}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            summaryOutput.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error: ${error.message}
+                </div>
+            `;
+        }
+    });
+
+    function displaySummary(summary, originalText) {
+        summaryOutput.innerHTML = `
+            <div class="summary-content">
+                <p>${summary.replace(/\n/g, '<br>')}</p>
+            </div>
+        `;
+        
+        // Show actions and stats
+        summaryActions.style.display = 'block';
+        summaryStats.style.display = 'block';
+        
+        // Update statistics
+        const originalWords = originalText.split(/\s+/).length;
+        const summaryWords = summary.split(/\s+/).length;
+        const compressionRatio = Math.round((1 - summaryWords / originalWords) * 100);
+        
+        document.getElementById('original-words').textContent = originalWords;
+        document.getElementById('summary-words').textContent = summaryWords;
+        document.getElementById('compression-ratio').textContent = compressionRatio + '%';
+    }
+
+    // Copy summary
+    document.getElementById('copy-summary').addEventListener('click', function() {
+        const summaryText = summaryOutput.querySelector('.summary-content p').textContent;
+        navigator.clipboard.writeText(summaryText).then(() => {
+            this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
+            }, 2000);
+        });
+    });
+
+    // Download summary
+    document.getElementById('download-summary').addEventListener('click', function() {
+        const summaryText = summaryOutput.querySelector('.summary-content p').textContent;
+        const blob = new Blob([summaryText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'summary.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+});
+</script>
+{% endblock %}

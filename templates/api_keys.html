@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}API Keys - AI Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-6 fw-bold text-primary">API Key Management</h1>
+                <p class="lead text-muted">Configure your AI provider API keys to unlock all features</p>
+            </div>
+
+            <!-- API Key Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>Add or Update API Key
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="provider" class="form-label">AI Provider</label>
+                                <select class="form-select" id="provider" name="provider" required>
+                                    <option value="">Select Provider</option>
+                                    <option value="openai">OpenAI</option>
+                                    <option value="gemini">Google Gemini</option>
+                                    <option value="groq">Groq</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="key_value" class="form-label">API Key</label>
+                                <input type="password" class="form-control" id="key_value" name="key_value" 
+                                       placeholder="Enter your API key" required>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-save me-1"></i>Save
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Current API Keys -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2"></i>Current API Keys
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if api_keys %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Provider</th>
+                                        <th>Key</th>
+                                        <th>Status</th>
+                                        <th>Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key in api_keys %}
+                                    <tr>
+                                        <td>
+                                            <span class="fw-medium">{{ key.provider.title() }}</span>
+                                        </td>
+                                        <td>
+                                            <code>{{ key.key_value[:8] }}...{{ key.key_value[-4:] }}</code>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Active
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ key.created_at.strftime('%m/%d/%Y') }}</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No API Keys Configured</h5>
+                            <p class="text-muted">Add your first API key above to start using AI tools.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Provider Information -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card provider-info-card">
+                        <div class="card-body text-center">
+                            <div class="provider-logo mb-3">
+                                <i class="fab fa-openai fa-2x text-primary"></i>
+                            </div>
+                            <h6 class="fw-bold">OpenAI</h6>
+                            <p class="small text-muted mb-3">GPT-5, DALL-E 3</p>
+                            <a href="https://platform.openai.com/api-keys" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Get API Key
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card provider-info-card">
+                        <div class="card-body text-center">
+                            <div class="provider-logo mb-3">
+                                <i class="fab fa-google fa-2x text-danger"></i>
+                            </div>
+                            <h6 class="fw-bold">Google Gemini</h6>
+                            <p class="small text-muted mb-3">Gemini 2.5 Pro/Flash</p>
+                            <a href="https://makersuite.google.com/app/apikey" target="_blank" class="btn btn-sm btn-outline-danger">
+                                Get API Key
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card provider-info-card">
+                        <div class="card-body text-center">
+                            <div class="provider-logo mb-3">
+                                <i class="fas fa-bolt fa-2x text-warning"></i>
+                            </div>
+                            <h6 class="fw-bold">Groq</h6>
+                            <p class="small text-muted mb-3">Lightning Fast Inference</p>
+                            <a href="https://console.groq.com/keys" target="_blank" class="btn btn-sm btn-outline-warning">
+                                Get API Key
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Note -->
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-shield-alt me-2"></i>
+                <strong>Security Note:</strong> Your API keys are stored securely and are only used to make requests to AI providers on your behalf. 
+                We never share your keys with third parties.
+            </div>
+
+            <!-- Navigation -->
+            <div class="text-center">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+                <a href="{{ url_for('pdf_chat') }}" class="btn btn-primary">
+                    <i class="fas fa-play me-1"></i>Start Using Tools
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}AI Platform - Unified AI Tools{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-4 fw-bold text-primary mb-4">
+                        Unleash the Power of <span class="gradient-text">Artificial Intelligence</span>
+                    </h1>
+                    <p class="lead mb-4">
+                        Your unified platform for AI-powered tools. Chat with PDFs, generate images, 
+                        summarize text, and get coding assistance - all from one sleek interface.
+                    </p>
+                    <div class="d-flex gap-3 mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Get Started
+                        </a>
+                        <a href="{{ url_for('api_keys') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-key me-2"></i>Setup API Keys
+                        </a>
+                    </div>
+                    <div class="feature-badges">
+                        <span class="badge bg-success me-2">
+                            <i class="fas fa-check me-1"></i>Multi-Provider Support
+                        </span>
+                        <span class="badge bg-info me-2">
+                            <i class="fas fa-shield-alt me-1"></i>Secure API Management
+                        </span>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-expand-arrows-alt me-1"></i>Easily Expandable
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image">
+                    <img src="https://pixabay.com/get/gc1b996a0663ca0c8cd89f0270f3d0660d5ad831a1ade194e49768c99b420a26eb671a153a0c396476f16e91bd8d49a28476c0247aa9ba73623fdaa5a7ef5f1e7_1280.jpg" 
+                         alt="Modern AI Interface" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-primary">Powerful AI Tools at Your Fingertips</h2>
+            <p class="lead text-muted">Streamline your workflow with our comprehensive suite of AI-powered tools</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- PDF Chat Tool -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h4>Chat with PDF</h4>
+                    <p>Upload PDFs and ask questions about their content. Get instant, accurate answers powered by AI.</p>
+                    <a href="{{ url_for('pdf_chat') }}" class="btn btn-outline-primary">Try Now</a>
+                </div>
+            </div>
+            
+            <!-- Text Summarization -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-compress-alt"></i>
+                    </div>
+                    <h4>Text Summarization</h4>
+                    <p>Quickly extract key insights from long documents. Multiple summary formats available.</p>
+                    <a href="{{ url_for('summarization') }}" class="btn btn-outline-primary">Try Now</a>
+                </div>
+            </div>
+            
+            <!-- Image Generation -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h4>Image Generation</h4>
+                    <p>Create stunning images from text descriptions using state-of-the-art AI models.</p>
+                    <a href="{{ url_for('image_generation') }}" class="btn btn-outline-primary">Try Now</a>
+                </div>
+            </div>
+            
+            <!-- Code Assistant -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h4>Code Assistant</h4>
+                    <p>Get help with coding tasks. Explain, review, generate, and optimize code across languages.</p>
+                    <a href="{{ url_for('code_assistant') }}" class="btn btn-outline-primary">Try Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Providers Section -->
+<section class="providers-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-primary">Multi-Provider AI Integration</h2>
+            <p class="lead text-muted">Connect with leading AI providers using your own API keys</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="provider-card text-center">
+                    <div class="provider-logo">
+                        <i class="fab fa-openai"></i>
+                    </div>
+                    <h4>OpenAI</h4>
+                    <p>GPT-5, DALL-E 3 for text generation and image creation</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="provider-card text-center">
+                    <div class="provider-logo">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <h4>Google Gemini</h4>
+                    <p>Advanced multimodal AI for text and image generation</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="provider-card text-center">
+                    <div class="provider-logo">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h4>Groq</h4>
+                    <p>Lightning-fast inference for rapid AI responses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold text-primary mb-4">Ready to Transform Your Workflow?</h2>
+                <p class="lead mb-4">
+                    Join thousands of users who are already leveraging the power of AI 
+                    to boost their productivity and creativity.
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-play me-2"></i>Start Using AI Tools
+                </a>
+                <a href="{{ url_for('api_keys') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-cog me-2"></i>Configure Settings
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

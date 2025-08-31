@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with PDF - AI Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-pdf me-2"></i>PDF Upload
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="pdf-upload-form" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="upload">
+                        <div class="mb-3">
+                            <label for="pdf-file" class="form-label">Select PDF File</label>
+                            <input type="file" class="form-control" id="pdf-file" name="file" accept=".pdf" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-upload me-1"></i>Upload PDF
+                        </button>
+                    </form>
+                    
+                    <div id="upload-status" class="mt-3"></div>
+                    
+                    <div id="pdf-info" class="mt-3" style="display: none;">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            PDF uploaded successfully! You can now ask questions about it.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Questions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Quick Questions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="What is the main topic of this document?">
+                            Main Topic
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="Can you summarize the key points?">
+                            Key Points
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="What are the conclusions or recommendations?">
+                            Conclusions
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="Are there any important dates or numbers mentioned?">
+                            Dates & Numbers
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="col-lg-8">
+            <div class="card chat-container">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Chat with PDF
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="welcome-message text-center p-4">
+                            <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Upload a PDF to Start Chatting</h5>
+                            <p class="text-muted">Once you upload a PDF, you can ask questions about its content and get AI-powered answers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form id="chat-form">
+                        <input type="hidden" name="action" value="chat">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="question-input" name="question" 
+                                   placeholder="Ask a question about the PDF..." disabled>
+                            <button type="submit" class="btn btn-primary" id="send-button" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('pdf-upload-form');
+    const chatForm = document.getElementById('chat-form');
+    const chatMessages = document.getElementById('chat-messages');
+    const questionInput = document.getElementById('question-input');
+    const sendButton = document.getElementById('send-button');
+    const quickQuestions = document.querySelectorAll('.quick-question');
+
+    // Handle PDF upload
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(uploadForm);
+        const uploadStatus = document.getElementById('upload-status');
+        
+        uploadStatus.innerHTML = '<div class="text-info"><i class="fas fa-spinner fa-spin me-2"></i>Uploading PDF...</div>';
+        
+        try {
+            const response = await fetch('/pdf-chat', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                uploadStatus.innerHTML = '';
+                document.getElementById('pdf-info').style.display = 'block';
+                questionInput.disabled = false;
+                sendButton.disabled = false;
+                
+                // Clear welcome message and show chat started message
+                chatMessages.innerHTML = `
+                    <div class="message assistant-message">
+                        <div class="message-content">
+                            <i class="fas fa-robot me-2"></i>
+                            PDF "${result.filename}" has been uploaded successfully! I'm ready to answer your questions about it.
+                        </div>
+                    </div>
+                `;
+            } else {
+                uploadStatus.innerHTML = `<div class="alert alert-danger">${result.error}</div>`;
+            }
+        } catch (error) {
+            uploadStatus.innerHTML = `<div class="alert alert-danger">Error uploading PDF: ${error.message}</div>`;
+        }
+    });
+
+    // Handle chat
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const question = questionInput.value.trim();
+        if (!question) return;
+        
+        // Add user message
+        addMessage(question, 'user');
+        questionInput.value = '';
+        
+        // Show typing indicator
+        const typingId = addTypingIndicator();
+        
+        try {
+            const formData = new FormData(chatForm);
+            formData.set('question', question);
+            
+            const response = await fetch('/pdf-chat', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            // Remove typing indicator
+            removeTypingIndicator(typingId);
+            
+            if (result.answer) {
+                addMessage(result.answer, 'assistant');
+            } else {
+                addMessage(result.error || 'Sorry, I could not process your question.', 'error');
+            }
+        } catch (error) {
+            removeTypingIndicator(typingId);
+            addMessage(`Error: ${error.message}`, 'error');
+        }
+    });
+
+    // Handle quick questions
+    quickQuestions.forEach(button => {
+        button.addEventListener('click', function() {
+            if (!questionInput.disabled) {
+                questionInput.value = this.dataset.question;
+                questionInput.focus();
+            }
+        });
+    });
+
+    function addMessage(content, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}-message`;
+        
+        let icon = '';
+        if (type === 'user') {
+            icon = '<i class="fas fa-user me-2"></i>';
+        } else if (type === 'assistant') {
+            icon = '<i class="fas fa-robot me-2"></i>';
+        } else if (type === 'error') {
+            icon = '<i class="fas fa-exclamation-triangle me-2"></i>';
+        }
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${icon}${content.replace(/\n/g, '<br>')}
+            </div>
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = 'message assistant-message';
+        typingDiv.innerHTML = `
+            <div class="message-content">
+                <i class="fas fa-robot me-2"></i>
+                <span class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </span>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        return typingId;
+    }
+
+    function removeTypingIndicator(typingId) {
+        const typingDiv = document.getElementById(typingId);
+        if (typingDiv) {
+            typingDiv.remove();
+        }
+    }
+});
+</script>
+{% endblock %}

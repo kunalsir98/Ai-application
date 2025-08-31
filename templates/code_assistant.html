@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Code Assistant - AI Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" id="explain-btn">
+                            <i class="fas fa-lightbulb me-2"></i>Explain Code
+                        </button>
+                        <button class="btn btn-success" id="review-btn">
+                            <i class="fas fa-search me-2"></i>Review Code
+                        </button>
+                        <button class="btn btn-warning" id="generate-btn">
+                            <i class="fas fa-magic me-2"></i>Generate Code
+                        </button>
+                        <button class="btn btn-info" id="optimize-btn">
+                            <i class="fas fa-rocket me-2"></i>Optimize Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Language Selection -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-code me-2"></i>Language
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <select class="form-select" id="language-select">
+                        <option value="">Auto-detect</option>
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="TypeScript">TypeScript</option>
+                        <option value="Java">Java</option>
+                        <option value="C++">C++</option>
+                        <option value="C#">C#</option>
+                        <option value="Go">Go</option>
+                        <option value="Rust">Rust</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Ruby">Ruby</option>
+                        <option value="Swift">Swift</option>
+                        <option value="Kotlin">Kotlin</option>
+                        <option value="HTML">HTML</option>
+                        <option value="CSS">CSS</option>
+                        <option value="SQL">SQL</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Quick Examples -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-file-code me-2"></i>Examples
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary btn-sm example-btn" 
+                                data-code="def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))">
+                            Fibonacci (Python)
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm example-btn" 
+                                data-code="function quickSort(arr) {
+    if (arr.length <= 1) return arr;
+    const pivot = arr[arr.length - 1];
+    const left = arr.filter(x => x < pivot);
+    const right = arr.filter(x => x > pivot);
+    return [...quickSort(left), pivot, ...quickSort(right)];
+}">
+                            Quick Sort (JS)
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm example-btn" 
+                                data-code="class BinaryTree:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+    
+    def insert(self, value):
+        if value < self.value:
+            if self.left is None:
+                self.left = BinaryTree(value)
+            else:
+                self.left.insert(value)
+        else:
+            if self.right is None:
+                self.right = BinaryTree(value)
+            else:
+                self.right.insert(value)">
+                            Binary Tree
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-6 fw-bold text-primary">AI Code Assistant</h1>
+                <p class="lead text-muted">Get intelligent help with your code - explain, review, generate, and optimize</p>
+            </div>
+            
+            <!-- Input/Output Areas -->
+            <div class="row">
+                <!-- Code Input -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>Code Input
+                            </h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div id="input-section">
+                                <div class="mb-3">
+                                    <label for="code-input" class="form-label">Your Code</label>
+                                    <textarea class="form-control code-textarea" id="code-input" rows="15" 
+                                              placeholder="Paste your code here or use the examples..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div id="generate-section" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="code-description" class="form-label">Describe what you want to code</label>
+                                    <textarea class="form-control" id="code-description" rows="5" 
+                                              placeholder="E.g., Create a function that validates email addresses..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm" id="clear-input">
+                                        <i class="fas fa-trash me-1"></i>Clear
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" id="format-code">
+                                        <i class="fas fa-align-left me-1"></i>Format
+                                    </button>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <span id="line-count">0 lines</span> • 
+                                        <span id="char-count">0 characters</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Response -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-robot me-2"></i>AI Response
+                            </h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div id="ai-response" class="flex-grow-1">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-robot fa-3x mb-3"></i>
+                                    <h5>AI assistance will appear here</h5>
+                                    <p>Choose an action and click the corresponding button to get started</p>
+                                </div>
+                            </div>
+                            
+                            <div id="response-actions" class="mt-3" style="display: none;">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" id="copy-response">
+                                        <i class="fas fa-copy me-1"></i>Copy
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="save-response">
+                                        <i class="fas fa-save me-1"></i>Save
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" id="insert-code">
+                                        <i class="fas fa-arrow-left me-1"></i>Insert to Editor
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('code-input');
+    const codeDescription = document.getElementById('code-description');
+    const languageSelect = document.getElementById('language-select');
+    const aiResponse = document.getElementById('ai-response');
+    const responseActions = document.getElementById('response-actions');
+    const inputSection = document.getElementById('input-section');
+    const generateSection = document.getElementById('generate-section');
+    const lineCount = document.getElementById('line-count');
+    const charCount = document.getElementById('char-count');
+    const exampleBtns = document.querySelectorAll('.example-btn');
+    
+    let currentResponse = '';
+    let currentAction = '';
+
+    // Update counters
+    function updateCounters() {
+        const code = codeInput.value;
+        const lines = code.split('\n').length;
+        const chars = code.length;
+        lineCount.textContent = `${lines} lines`;
+        charCount.textContent = `${chars} characters`;
+    }
+
+    codeInput.addEventListener('input', updateCounters);
+
+    // Example buttons
+    exampleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            codeInput.value = this.dataset.code;
+            updateCounters();
+            showInputSection();
+        });
+    });
+
+    // Action buttons
+    document.getElementById('explain-btn').addEventListener('click', () => performAction('explain'));
+    document.getElementById('review-btn').addEventListener('click', () => performAction('review'));
+    document.getElementById('generate-btn').addEventListener('click', () => {
+        showGenerateSection();
+        currentAction = 'generate';
+    });
+    document.getElementById('optimize-btn').addEventListener('click', () => performAction('optimize'));
+
+    // Utility buttons
+    document.getElementById('clear-input').addEventListener('click', function() {
+        codeInput.value = '';
+        codeDescription.value = '';
+        updateCounters();
+    });
+
+    document.getElementById('format-code').addEventListener('click', function() {
+        // Simple code formatting (basic indentation)
+        const code = codeInput.value;
+        const formatted = formatCode(code);
+        codeInput.value = formatted;
+        updateCounters();
+    });
+
+    function showInputSection() {
+        inputSection.style.display = 'block';
+        generateSection.style.display = 'none';
+    }
+
+    function showGenerateSection() {
+        inputSection.style.display = 'none';
+        generateSection.style.display = 'block';
+    }
+
+    async function performAction(action) {
+        currentAction = action;
+        
+        let code = '';
+        let question = '';
+        
+        if (action === 'generate') {
+            question = codeDescription.value.trim();
+            if (!question) {
+                alert('Please describe what you want to code.');
+                return;
+            }
+        } else {
+            code = codeInput.value.trim();
+            if (!code) {
+                alert('Please enter some code first.');
+                return;
+            }
+        }
+        
+        // Show loading state
+        aiResponse.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mt-3">Processing your request...</h5>
+                <p class="text-muted">This may take a few moments</p>
+            </div>
+        `;
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('code', code);
+            formData.append('question', question);
+            
+            const language = languageSelect.value;
+            if (language) {
+                formData.append('language', language);
+            }
+            
+            const response = await fetch('/code-assistant', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.result) {
+                displayResponse(result.result, action);
+            } else {
+                aiResponse.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${result.error || 'Failed to process request'}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            aiResponse.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error: ${error.message}
+                </div>
+            `;
+        }
+    }
+
+    function displayResponse(response, action) {
+        currentResponse = response;
+        
+        let icon = '';
+        let title = '';
+        
+        switch (action) {
+            case 'explain':
+                icon = 'fas fa-lightbulb';
+                title = 'Code Explanation';
+                break;
+            case 'review':
+                icon = 'fas fa-search';
+                title = 'Code Review';
+                break;
+            case 'generate':
+                icon = 'fas fa-magic';
+                title = 'Generated Code';
+                break;
+            case 'optimize':
+                icon = 'fas fa-rocket';
+                title = 'Optimized Code';
+                break;
+        }
+        
+        aiResponse.innerHTML = `
+            <div class="response-content">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="${icon} me-2 text-primary"></i>
+                    <h6 class="mb-0">${title}</h6>
+                </div>
+                <div class="response-text">${formatResponse(response)}</div>
+            </div>
+        `;
+        
+        responseActions.style.display = 'block';
+    }
+
+    function formatResponse(response) {
+        // Convert code blocks and preserve formatting
+        return response
+            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-light p-3 rounded"><code>$2</code></pre>')
+            .replace(/`([^`]+)`/g, '<code class="bg-light px-1 rounded">$1</code>')
+            .replace(/\n/g, '<br>');
+    }
+
+    function formatCode(code) {
+        // Basic code formatting (this is simplified)
+        const lines = code.split('\n');
+        let indentLevel = 0;
+        const indentSize = 4;
+        
+        return lines.map(line => {
+            const trimmed = line.trim();
+            if (trimmed.includes('}') || trimmed.includes(']') || trimmed.includes(')')
+                || trimmed.startsWith('else') || trimmed.startsWith('elif')
+                || trimmed.startsWith('except') || trimmed.startsWith('finally')) {
+                indentLevel = Math.max(0, indentLevel - 1);
+            }
+            
+            const formatted = ' '.repeat(indentLevel * indentSize) + trimmed;
+            
+            if (trimmed.includes('{') || trimmed.includes('[') || trimmed.includes('(')
+                || trimmed.endsWith(':')) {
+                indentLevel++;
+            }
+            
+            return formatted;
+        }).join('\n');
+    }
+
+    // Response action buttons
+    document.getElementById('copy-response').addEventListener('click', function() {
+        navigator.clipboard.writeText(currentResponse).then(() => {
+            this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
+            }, 2000);
+        });
+    });
+
+    document.getElementById('save-response').addEventListener('click', function() {
+        const blob = new Blob([currentResponse], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentAction}-${Date.now()}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('insert-code').addEventListener('click', function() {
+        if (currentAction === 'generate' || currentAction === 'optimize') {
+            // Extract code from response (look for code blocks)
+            const codeMatch = currentResponse.match(/```[\w]*\n([\s\S]*?)```/);
+            if (codeMatch) {
+                codeInput.value = codeMatch[1].trim();
+                showInputSection();
+                updateCounters();
+            } else {
+                // If no code block found, insert the whole response
+                codeInput.value = currentResponse;
+                showInputSection();
+                updateCounters();
+            }
+        }
+    });
+
+    // Initialize counters
+    updateCounters();
+});
+</script>
+{% endblock %}
