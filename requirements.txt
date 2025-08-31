@@ -19,3 +19,4 @@ google-generativeai
 langchain-google-genai
 faiss-cpu
 python-dotenv
+vercel
