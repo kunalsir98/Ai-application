@@ -1,4 +1,4 @@
-// AI Platform - Main JavaScript
+// Enhanced AI Platform - Main JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize theme management
     initializeTheme();
+    
+    // Initialize chat functionality
+    initializeChat();
+    
+    // Initialize stats counter
+    initializeStatsCounter();
 });
 
 // Tooltip Initialization
@@ -48,7 +54,7 @@ function initializeAnimations() {
     }, observerOptions);
     
     // Observe elements with animation classes
-    document.querySelectorAll('.feature-card, .tool-card, .provider-card').forEach(el => {
+    document.querySelectorAll('.feature-card, .tool-card, .provider-card, .stat-card').forEach(el => {
         observer.observe(el);
     });
 }
@@ -253,6 +259,127 @@ function applyTheme(theme) {
         if (icon) {
             icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         }
+    }
+}
+
+// Chat Functionality
+function initializeChat() {
+    const chatMessages = document.querySelector('.chat-messages');
+    const chatInput = document.querySelector('.chat-input input');
+    const sendButton = document.querySelector('.chat-input button');
+    
+    if (sendButton && chatInput) {
+        sendButton.addEventListener('click', function() {
+            if (chatInput.value.trim() !== '') {
+                addUserMessage(chatInput.value);
+                chatInput.value = '';
+                
+                // Simulate AI response after a delay
+                setTimeout(addAIResponse, 1000);
+            }
+        });
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim() !== '') {
+                addUserMessage(this.value);
+                this.value = '';
+                
+                // Simulate AI response after a delay
+                setTimeout(addAIResponse, 1000);
+            }
+        });
+    }
+    
+    function addUserMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message user-message';
+        messageElement.innerHTML = `
+            <div class="message-content">
+                <p>${message}</p>
+                <div class="message-time">Just now</div>
+            </div>
+        `;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function addAIResponse() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'message assistant-message';
+        typingIndicator.innerHTML = `
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Simulate typing delay
+        setTimeout(() => {
+            chatMessages.removeChild(typingIndicator);
+            
+            const responses = [
+                "I've generated that code for you. Is there anything else you need?",
+                "Here's the solution to your problem. Let me know if you need further assistance.",
+                "I've created the code as requested. Would you like me to explain any part of it?",
+                "Task completed! Here's the output you requested."
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message assistant-message';
+            messageElement.innerHTML = `
+                <div class="message-content">
+                    <p>${randomResponse}</p>
+                    <div class="message-time">Just now</div>
+                </div>
+            `;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 2000);
+    }
+}
+
+// Stats Counter Animation
+function initializeStatsCounter() {
+    const statCards = document.querySelectorAll('.stat-card');
+    
+    const observerOptions = {
+        threshold: 0.5
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statValue = entry.target.querySelector('h3');
+                const targetValue = parseInt(statValue.textContent);
+                animateValue(statValue, 0, targetValue, 2000);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    statCards.forEach(card => {
+        observer.observe(card);
+    });
+    
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            element.textContent = value.toLocaleString() + (end > 1000 ? '+' : '');
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 }
 

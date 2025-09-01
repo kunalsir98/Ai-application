@@ -14,9 +14,5 @@ requests>=2.32.5
 flask-login>=0.6.3
 sqlalchemy>=2.0.43
 PyPDF2
-langchain
-google-generativeai
-langchain-google-genai
-faiss-cpu
 python-dotenv
-vercel
+gunicorn
