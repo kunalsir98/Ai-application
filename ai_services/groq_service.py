@@ -10,7 +10,7 @@ class GroqService:
     def is_available(self):
         return self.api_key is not None
     
-    def chat_completion(self, messages, model="llama3-8b-8192", **kwargs):
+    def chat_completion(self, messages, model="llama-3.3-70b-versatile", **kwargs):
         """Generate chat completion using Groq"""
         if not self.is_available():
             raise Exception("Groq API key not configured")
